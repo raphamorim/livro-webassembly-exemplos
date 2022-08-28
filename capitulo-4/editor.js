@@ -188,8 +188,8 @@ botaoPBFiltroJs.addEventListener('click', (event) => {
 });
 
 function tempoDaOperacao(inicio, fim, nomeDaOperacao) {
-  // Seleciona o elemento #perfomance
-  const perfomance = document.querySelector('#perfomance');
-  // Muda o texto de #perfomance para o tempo da execução
-  perfomance.textContent = `${nomeDaOperacao}: ${fim - inicio} ms.`;
+  // Seleciona o elemento #performance
+  const performance = document.querySelector('#performance');
+  // Muda o texto de #performance para o tempo da execução
+  performance.textContent = `${nomeDaOperacao}: ${fim - inicio} ms.`;
 }
