@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Editor</title>
+    <link rel="stylesheet" href="editor.css">
+
+    <!-- Essa linha é completamente opcional, adicionado apenas para evitar a mensagem de erro do navegador quanto ao "favicon.ico" -->
+    <link rel="icon" type="image/png" href="data:image/png;base64,-" />
+</head>
+<body>
+    <div class="painel">
+        <h1>Escolher imagem:</h1>
+        <input type="file" accept="image/jpeg, image/png" />
+        <h1><div id="perfomance"></div></h1>
+        <h1>Filtros:</h1>
+        <p><button id="remover">Remover filtros</button></p>
+        <p><button id="preto-e-branco-js">Filtro preto e branco usando JavaScript</button></p>
+        <p><button id="preto-e-branco-wasm">Filtro preto e branco usando WebAssembly</button></p>
+    </div>
+
+    <div class="area">
+        <img id="imagem" src="rio-de-janeiro.jpg" height="400" />
+    </div>
+
+    <script src="editor.js"></script>
+</body>
+</html>
