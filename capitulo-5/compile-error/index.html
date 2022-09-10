@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Exemplo CompileError</title>
+</head>
+<body>
+	<script>
+		fetch('arquivo-invalido.wasm').then((response) =>
+			response.arrayBuffer()
+		).then(function(bytes) {
+			// Se "valido" for verdadeiro, o conteúdo do arquivo está correto
+			const valido = WebAssembly.validate(bytes);
+
+			// Printa no console se é válido ou não
+			console.log(`Os bytes são ${valido ? "válidos" : "inválidos"} para compilar em um módulo WASM`);
+
+			// Tenta compilar os bytes
+			WebAssembly.compile(bytes);
+		});
+	</script>
+</body>
+</html>
