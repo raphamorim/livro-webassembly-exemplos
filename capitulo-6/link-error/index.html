@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exemplo LinkError</title>
+</head>
+<body>
+  <script>
+    const configuracao = {
+      env: {
+        // Para reproduzir o LinkError:
+        // basta renomear console_log para log
+        console_log: (n) => {
+          console.log('-> enviado: ', n);
+        }
+      }
+    };
+
+    fetch('link.wasm')
+      .then(response => response.arrayBuffer())
+      .then(bytes => WebAssembly.compile(bytes))
+      .then(mod => WebAssembly.instantiate(mod, configuracao))
+      .then(mod => {
+        const { soma_ate_n } = mod.exports;
+
+        console.log('<- recebido: ', soma_ate_n(1)); // 1
+        console.log('<- recebido: ', soma_ate_n(2)); // 3
+        console.log('<- recebido: ', soma_ate_n(3)); // 6
+      });
+  </script>
+</body>
+</html>
