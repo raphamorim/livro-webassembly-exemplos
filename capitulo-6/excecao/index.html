@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exemplo LinkError</title>
+</head>
+<body>
+  <script>
+    // Cria a tag com um parâmetro do tipo f32
+    const tag = new WebAssembly.Tag({ 
+      parameters: ['f32'] 
+    });
+
+    // Define o objeto de configuração de importações e 
+    // especifica uma função chamada lanca_excecao
+    const configuracao = { 
+      env: { 
+        lanca_excecao: () => {
+          const exc = new WebAssembly.Exception(
+            tag, [85.25], { traceStack: true }
+          );
+          throw exc;
+        }
+      }
+    };
+
+    fetch('excecao.wasm')
+      .then(response => response.arrayBuffer())
+      .then(bytes => WebAssembly.compile(bytes))
+      .then(mod => WebAssembly.instantiate(mod, configuracao))
+      .then(mod => { mod.exports.excecao() })
+      .catch((e) => {
+        console.error(e);
+        
+        // Se a exceção for a tag específica podemos inspecionar 
+        // usando o método ".is" no erro
+        if (e.is(tag)) {
+          // Pega o parâmetro de posição 0 da tag
+          // Retorna "85.25"
+          console.log(`getArg 0 : ${e.getArg(tag, 0)}`);
+        }
+      });
+  </script>
+</body>
+</html>

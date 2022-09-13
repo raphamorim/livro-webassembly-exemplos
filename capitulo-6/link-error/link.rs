@@ -4,11 +4,11 @@
 // Você também pode especificar como: extern "C"
 extern {
     #[link_name = "console_log"]
-    fn log(x: f64) -> f64;
+    fn log(x: f32) -> f32;
 }
 
 #[no_mangle]
-pub extern fn soma_ate_n(n: f64) -> f64 {
+pub extern fn soma_ate_n(n: f32) -> f32 {
     unsafe {
         log(n);
     }

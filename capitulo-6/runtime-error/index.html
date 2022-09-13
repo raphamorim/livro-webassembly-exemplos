@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exemplo RuntimeError</title>
+</head>
+<body>
+  <script>
+    WebAssembly.instantiateStreaming(fetch('runtime.wasm'))
+      .then(({ instance }) => {
+        // Retorna 255
+        console.log(instance.exports.funcao_com_erro_em_execucao(0));
+
+        // Irá quebrar pois u8 vai até 255
+        console.log(instance.exports.funcao_com_erro_em_execucao(1));
+      });
+  </script>
+</body>
+</html>
