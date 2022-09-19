@@ -9,25 +9,8 @@
   <script>
     const importacoes = {
       env: {
-        console_log_u8: (n) => console.log(n),
-        console_log_u32: (n) => console.log(n),
-        encode: (string) => {
-          let number = "0x";
-          const length = string.length;
-          for (let i = 0; i < length; i++)
-              number += string.charCodeAt(i).toString(16);
-          return number;
-        },
-        decode: (number) => {
-          let string = "";
-          number = number.slice(2);
-          const length = number.length;
-          for (let i = 0; i < length;) {
-              const code = number.slice(i, i += 2);
-              string += String.fromCharCode(parseInt(code, 16));
-          }
-          return string;
-        }
+        console_log: (n) => console.log(n),
+        alert: (n) => window.alert(n)
       }
     };
 

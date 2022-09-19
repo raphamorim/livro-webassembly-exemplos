@@ -1,21 +1,23 @@
 // rustc vinculacao.rs --target wasm32-unknown-unknown --crate-type=cdylib 
 
-// pub mod numeros;
+pub mod numeros;
 
 extern "C" {
-    #[link_name = "console_log_u8"]
-    fn log_u8(x: u8) -> u8;
+    #[link_name = "console_log"]
+    fn log(x: u32) -> u32;
 
-    #[link_name = "console_log_u32"]
-    fn log_u32(x: u32) -> u32;
+    #[link_name = "alert"]
+    fn alert(x: u8) -> u8;
 }
 
 #[no_mangle]
 pub fn executar() {
     unsafe {
-        let vinte: u8 = *numeros::retorna_vinte();
+        let vinte: u32 = *numeros::retorna_vinte();
 
-        log_u8(vinte); // 20
-        log_u32(numeros::NUMERO); // 87654321
+        log(vinte); // 20
+        log(numeros::NUMERO); // 87654321
+
+        alert(85); // 85 com window.alert
     }
 }
