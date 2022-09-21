@@ -1,5 +1,3 @@
-
-
 static DEZ: i32 = 10;
 #[export_name = "retorna_dez"]
 pub extern fn retorna_10() -> i32 {
