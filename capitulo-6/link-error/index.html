@@ -13,6 +13,15 @@
         // basta renomear "console_log" para "log"
         console_log: (n) => {
           console.log('-> enviado: ', n);
+        },
+        erro: (erro) => {
+          switch (erro) {
+            case 1:
+              console.log('Com Erro');
+              break;
+            default:
+              console.log('Sem Erro');
+          }
         }
       }
     };
@@ -22,11 +31,13 @@
       .then(bytes => WebAssembly.compile(bytes))
       .then(mod => WebAssembly.instantiate(mod, configuracao))
       .then(mod => {
-        const { soma_ate_n } = mod.exports;
+        const { soma_ate_n, executa_funcao_que_falha } = mod.exports;
 
         console.log('<- recebido: ', soma_ate_n(1)); // 1
         console.log('<- recebido: ', soma_ate_n(2)); // 3
         console.log('<- recebido: ', soma_ate_n(3)); // 6
+
+        executa_funcao_que_falha();
       });
   </script>
 </body>

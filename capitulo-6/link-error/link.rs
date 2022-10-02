@@ -5,6 +5,25 @@
 extern {
     #[link_name = "console_log"]
     fn log(x: f32) -> f32;
+
+    #[link_name = "erro"]
+    fn erro(x: u8) -> u8;
+}
+
+fn funcao_que_falha() -> Result<(), &'static str> {
+    Err("Falhou")
+}
+
+#[no_mangle]
+pub extern fn executa_funcao_que_falha() {
+    match funcao_que_falha() {
+        Ok(_) => {},
+        Err(..) => {
+            unsafe {
+                erro(1);
+            }
+        },
+    }
 }
 
 #[no_mangle]
