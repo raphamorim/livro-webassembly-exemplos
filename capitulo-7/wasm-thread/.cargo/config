@@ -1,0 +1,10 @@
+[unstable]
+build-std = ['std', 'panic_abort']
+
+[build]
+target = "wasm32-unknown-unknown"
+rustflags = [
+	'-Ctarget-feature=+atomics,+bulk-memory,+mutable-globals',
+	'-C', 'link-args=--no-entry --shared-memory --import-memory --max-memory=209715200',
+]
+
