@@ -17,26 +17,26 @@ for (let i = 0; i < processadores; i++) {
   let worker = new Worker('./worker.js');
 
   worker.addEventListener('message', e => {
-    if (e.data.action === 'INICIALIZAR') {
+    if (e.data.operacao === 'INICIALIZAR') {
       workersLista.push(worker);
     }
   }, false);
 
-  worker.postMessage({ action: 'INICIALIZAR', imports });   
+  worker.postMessage({ operacao: 'INICIALIZAR', imports });
 }
 
-const funcaoComIntervalo = setInterval(executarWorkers, 100);
+const intervalo = setInterval(executarWorkers, 100);
 
 function executarWorkers() {
   if (workersLista.length == processadores) {
-    clearInterval(funcaoComIntervalo);
+    clearInterval(intervalo);
 
     for (let i = 0; i < processadores; i++) {
       const valor = i + 1;
-      console.log('valor para somar:', valor);
+      console.log(`valor para somar: ${valor}`);
 
       workersLista[i].postMessage({
-        action: 'EXECUTAR',
+        operacao: 'EXECUTAR',
         valor 
       });
     }
