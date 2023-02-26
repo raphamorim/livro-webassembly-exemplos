@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Olá mundo</title>
+    <script type="module">
+      /*
+       * O pacote por padrão exporta a função "init" que
+       * inicializa o carregamento do WASM.
+       * Também exporta a função que escrevemos em
+       * Rust nomeada "olamundo"
+       */
+      import init, { olamundo } from './pkg/olamundo.js';
+
+      // Função assíncrona de execução
+      async function execucao() {
+        // Inicializa o carregamento
+        await init();
+
+        // Coloca o resultado no corpo da página
+        document.body.textContent = olamundo();
+      }
+
+      execucao();
+    </script>
+  </head>
+  <body></body>
+</html>
