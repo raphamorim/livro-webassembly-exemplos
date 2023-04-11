@@ -51,24 +51,6 @@ extern fn malloc(comprimento: usize) -> *mut u8 {
     std::process::abort()
 }
 
-// #[no_mangle]
-// extern fn malloc_f32(comprimento: usize) -> *mut u8 {
-//     let alinhamento = mem::align_of::<usize>();
-//     if let Ok(layout) = Layout::from_size_align(comprimento, alinhamento) {
-//         unsafe {
-//             if layout.size() > 0 {
-//                 let ponteiro = alloc(layout);
-//                 if !ponteiro.is_null() {
-//                     return ponteiro;
-//                 }
-//             } else {
-//                 return alinhamento as *mut f32;
-//             }
-//         }
-//     }
-//     std::process::abort()
-// }
-
 #[no_mangle]
 extern fn acumular(pointeiro: *mut u8, comprimento: usize) -> i32 {
     let fatia = unsafe { from_raw_parts_mut(pointeiro as *mut u8, comprimento) };
