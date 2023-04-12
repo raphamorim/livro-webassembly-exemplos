@@ -1,8 +1,8 @@
 body {
+    margin-top: 10em;
     font-family: 'Helvetica';
     background: #000000;
     color: white;
-    margin-top: 10em;
     background-size: 40px 40px;
     background-image:
         linear-gradient(to right, grey 1px, transparent 1px),
@@ -27,4 +27,6 @@ body {
     background: #c12664;
     float: right;
     width: 25%;
+    height: 450px;
+    overflow-y: scroll;
 }

@@ -1,87 +1,117 @@
 const input = document.querySelector('input');
 const botaoResetarFiltro = document.querySelector('#remover');
 const botaoPBFiltroJs = document.querySelector('#preto-e-branco-js');
-const botaoPBFiltroWasm = document.querySelector('#preto-e-branco-wasm');
+const botaoSepiaJs = document.querySelector('#sepia-js');
 
 // Salva o atributo 'src' da imagem original
 let imagemOriginal = document.getElementById('imagem').src;
 
-// const arquivo = './target/wasm32-unknown-unknown/release/editor.wasm';
-const arquivo = 'editor-binaryen.wasm';
-const memoria = new WebAssembly.Memory({
-  initial: 10,
-  maximum: 100,
-});
-WebAssembly.instantiateStreaming(fetch(arquivo), { js: { mem: memoria } })
-  .then(wasm => {
-    const { instance } = wasm;
-    const { 
+// Se não tiver compilado o arquivo: use 'editor.wasm'
+const arquivo = './target/wasm32-unknown-unknown/release/editor.wasm';
+// const arquivo = 'editor.wasm';
+
+function executarFiltro(image, processImageFn) {
+  const { canvas } = converteImagemParaCanvas(image);
+  if (!processImageFn) {
+    return canvas.toDataURL();
+  }
+
+  if (typeof processImageFn === 'function') {
+    processImageFn(canvas, canvas.getContext('2d'));
+    return canvas.toDataURL('image/jpeg');
+  }
+};
+
+function adicionarFiltro(text, selector, { instance, filtro }) {
+  const button = document.querySelector(selector);
+  const imagem = document.getElementById('imagem');
+  button.addEventListener('click', () => {
+    executarFiltro(imagem, (canvas, context) => {
+      const image = document.getElementById("imagem");
+      const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+      const buffer = imageData.data.buffer;
+      const u8Array = new Uint8Array(buffer);
+      let wasmClampedPtr = instance.exports.malloc(u8Array.length);
+      let wasmClampedArray = new Uint8ClampedArray(instance.exports.memory.buffer, wasmClampedPtr, u8Array.length);
+      wasmClampedArray.set(u8Array);
+      const startTime = performance.now();
+      filtro(wasmClampedPtr, u8Array.length);
+      const endTime = performance.now();
+      tempoDaOperacao(startTime, endTime, text);
+      const width = image.naturalWidth || image.width;
+      const height = image.naturalHeight || image.height;
+      const newImageData = context.createImageData(width, height);
+      newImageData.data.set(wasmClampedArray);
+      context.putImageData(newImageData, 0, 0);
+      image.src = canvas.toDataURL('image/jpeg');
+    });
+  });
+};
+
+WebAssembly.instantiateStreaming(fetch(arquivo))
+  .then(({instance}) => {
+    const {
+      ponteiro_usando_box,
+      ponteiro,
+      sem_ponteiro,
       subtracao,
       criar_memoria_inicial,
       memory,
       malloc, 
       acumular,
-      filtro_preto_e_branco
+      filtro_preto_e_branco,
+      filtro_vermelho,
+      filtro_verde,
+      filtro_azul,
+      filtro_super_azul,
+      filtro_opacidade,
+      filtro_sepia,
+      filtro_inversao
     } = instance.exports;
 
-    botaoPBFiltroWasm.addEventListener('click', (event) => {
-        // Seleciona a imagem
-        const imagem = document.getElementById('imagem');
+    // ----
+    // Ponteiro com Box
+    const ptrBox = ponteiro_usando_box();
+    const ptrBoxValor = new Uint8Array(instance.exports.memory.buffer, ptrBox, 4);
+    // ptrBoxValor Uint8Array(4) [ 8, 5, 8, 5 ]
+    console.log('ptrBoxValor', ptrBoxValor);
 
-        // Converte a imagem para canvas
-        const { canvas, contexto } = converteImagemParaCanvas(imagem);
+    // ----
+    // Ponteiro sem Box
+    const ptr = ponteiro();
+    const ptrValor = new Uint8Array(instance.exports.memory.buffer, ptr, 4);
+    // ptrValor Uint8Array(4) [ 8, 5, 8, 5 ]
+    console.log('ptrValor', ptrValor);
 
-        // Dados da imagem (objeto com tipo ImageData)
-        const dadosDaImagem = contexto.getImageData(0, 0, canvas.width, canvas.height);
+    // -----
+    // Função sem declaração de "extern"
+    // e retorno do valor de forma direta.
+    const semPonteiro = sem_ponteiro();
+    console.log(semPonteiro); // 84411656
 
-        // Porém dessa vez usamos "buffer" em vez de "data" para
-        // poder montar a matriz tipada da imagem
-        const buffer = dadosDaImagem.data.buffer;
-
-        // Matriz tipada de u8 (0 a 255)
-        const u8Array = new Uint8Array(buffer);
-
-        // Realiza o malloc matriz tipada
-        const ponteiro = malloc(u8Array.length);
-
-        // Cria matriz tipada a partir da visualização da memória da
-        // instancia, ponteiro e comprimento (u8Array.length)
-        let wasmArray = new Uint8ClampedArray(
-            instance.exports.memory.buffer,
-            ponteiro, 
-            u8Array.length
-        );
-
-        // O valor de wasmArray se torna o mesmo da nossa imagem
-        wasmArray.set(u8Array);
-
-        // Salva o tempo do início da operação
-        const inicio = performance.now();
-
-        // Aplica filtro na imagem que está salva na memória
-        filtro_preto_e_branco(ponteiro, u8Array.length);
-
-        // Salva o tempo do final da operação
-        const final = performance.now();
-
-        // Computa tempo da operação
-        tempoDaOperacao(inicio, final, 'WebAssembly Preto e Branco');
-
-        // Pega altura e largura da imagem
-        const width = imagem.naturalWidth || imagem.width;
-        const height = imagem.naturalHeight || imagem.height;
-
-        // Cria dados da imagem (ImageData) usando largura e altura
-        const novoDadosDaImagem = contexto.createImageData(width, height);
-        
-        // Preenche os dados com a matriz tipada
-        novoDadosDaImagem.data.set(wasmArray);
-
-        // Atualiza o canvas com a nova image
-        contexto.putImageData(novoDadosDaImagem, 0, 0);
-
-        // Atualiza o atributo src como o base64 do canvas
-        imagem.src = canvas.toDataURL('image/jpeg');
+    adicionarFiltro('Preto e Branco WASM', '#preto-e-branco-wasm', {
+      instance, filtro: filtro_preto_e_branco
+    });
+    adicionarFiltro('Vermelho WASM', '#vermelho-wasm', {
+      instance, filtro: filtro_vermelho
+    });
+    adicionarFiltro('Azul WASM', '#azul-wasm', {
+      instance, filtro: filtro_azul
+    });
+    adicionarFiltro('Verde WASM', '#verde-wasm', {
+      instance, filtro: filtro_verde
+    });
+    adicionarFiltro('Super Azul WASM', '#super-azul-wasm', {
+      instance, filtro: filtro_super_azul
+    });
+    adicionarFiltro('Opacidade WASM', '#opacidade-wasm', {
+      instance, filtro: filtro_opacidade
+    });
+    adicionarFiltro('Sépia WASM', '#sepia-wasm', {
+      instance, filtro: filtro_sepia
+    });
+    adicionarFiltro('Inversão WASM', '#inversao-wasm', {
+      instance, filtro: filtro_inversao
     });
     
     criar_memoria_inicial();
@@ -139,7 +169,34 @@ function converteImagemParaCanvas(imagem) {
 
   // Retorna tanto o canvas como seu contexto
   return { canvas, contexto };
-}
+};
+
+function filtroSepia(canvas, contexto) {
+  const dadosDaImagem = contexto.getImageData(
+    0, 0, canvas.width, canvas.height);
+  const pixels  = dadosDaImagem.data;
+  const inicio = performance.now();
+  for (let i = 0; i < pixels.length; i += 4) {
+    let r = pixels[i];
+    let g = pixels[i + 1];
+    let b = pixels[i + 2];
+
+    pixels[i] = (r * 0.393) + (g * 0.769) + (b * 0.189);
+    pixels[i + 1] = (r * 0.349) + (g * 0.686) + (b * 0.168);
+    pixels[i + 2] = (r * 0.272) + (g * 0.534) + (b * 0.131);
+  }
+  const fim = performance.now();
+  tempoDaOperacao(inicio, fim, 'JavaScript Sepia');
+  contexto.putImageData(dadosDaImagem, 0, 0);
+  return canvas.toDataURL('image/jpeg');
+};
+
+botaoSepiaJs.addEventListener('click', (event) => {
+  const imagem = document.getElementById('imagem');
+  const { canvas, contexto } = converteImagemParaCanvas(imagem);
+  const base64 = filtroSepia(canvas, contexto);
+  imagem.src = base64;
+});
 
 function filtroPretoBrancoJS(canvas, contexto) {
   // Pega os dados da imagem
@@ -171,7 +228,7 @@ function filtroPretoBrancoJS(canvas, contexto) {
 
   // Retorna um base64 do canvas
   return canvas.toDataURL('image/jpeg');
-}
+};
 
 botaoPBFiltroJs.addEventListener('click', (event) => {
   // Seleciona a imagem
@@ -192,4 +249,4 @@ function tempoDaOperacao(inicio, fim, nomeDaOperacao) {
   const performance = document.querySelector('#performance');
   // Muda o texto de #performance para o tempo da execução
   performance.textContent = `${nomeDaOperacao}: ${fim - inicio} ms.`;
-}
+};
