@@ -17,5 +17,9 @@ build-debug:
 lint:
 	cargo fmt --check
 
+install:
+	cargo install cargo-server
+	cargo install cargo-watch
+
 server:
 	cargo server --port 5000
