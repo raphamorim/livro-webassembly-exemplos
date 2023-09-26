@@ -52,8 +52,8 @@ extern fn malloc(comprimento: usize) -> *mut u8 {
 }
 
 #[no_mangle]
-extern fn acumular(pointeiro: *mut u8, comprimento: usize) -> i32 {
-    let fatia = unsafe { from_raw_parts_mut(pointeiro as *mut u8, comprimento) };
+extern fn acumular(ponteiro: *mut u8, comprimento: usize) -> i32 {
+    let fatia = unsafe { from_raw_parts_mut(ponteiro as *mut u8, comprimento) };
     let mut soma = 0;
     for i in 0..comprimento {
         soma = soma + fatia[i];
@@ -62,8 +62,8 @@ extern fn acumular(pointeiro: *mut u8, comprimento: usize) -> i32 {
 }
 
 #[no_mangle]
-extern fn filtro_preto_e_branco(pointeiro: *mut u8, comprimento: usize) {
-    let pixels = unsafe { from_raw_parts_mut(pointeiro as *mut u8, comprimento) };
+extern fn filtro_preto_e_branco(ponteiro: *mut u8, comprimento: usize) {
+    let pixels = unsafe { from_raw_parts_mut(ponteiro as *mut u8, comprimento) };
     let mut i = 0;
     loop {
         if i >= comprimento - 1 {

@@ -15,11 +15,11 @@ fn meu_livro() -> String {
 pub fn salvar_livro_na_memoria() {
     let fatia_da_memoria: &mut [u8];
     let livro: String = meu_livro();
-    let pointeiro_nulo: *mut u8 = ptr::null_mut();
+    let ponteiro_nulo: *mut u8 = ptr::null_mut();
     let bytes: &[u8] = livro.as_bytes();
 
     unsafe {
-        fatia_da_memoria = from_raw_parts_mut::<u8>(pointeiro_nulo, bytes.len());
+        fatia_da_memoria = from_raw_parts_mut::<u8>(ponteiro_nulo, bytes.len());
     }
 
     for pos in 0..bytes.len() {
